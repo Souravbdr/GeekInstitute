@@ -14,38 +14,35 @@ import com.example.geektrust.exceptions.NoSuchCommandException;
 
 public class Main {
 
-	public static long swapBits(long n) {
-        long ans = 0;
-
-        for(int i=30; i>0; i-=2){
-            long even = (n>>i) & 1;
-            long odd = (n>>(i-1)) & 1;
-            System.out.println(Long.toBinaryString(n>>i)+","+Long.toBinaryString(n>>(i-1)));
-            if(even!=odd){
-                //long temp = 1<<30;
-                System.out.print(Long.toBinaryString(n)+"^"+Long.toBinaryString(1<<i)+"=");
-                n ^= (1<<i);
-                System.out.println(Long.toBinaryString(n));
-                System.out.print(Long.toBinaryString(n)+"^"+Long.toBinaryString(1<<(i-1))+"=");
-                n ^= 1<<(i-1); 
-                System.out.println(Long.toBinaryString(n));
-            }
-            //System.out.println(Long.toBinaryString(n));
+   public static void main(String[] args) {
+        List<String> commandLineArgs = new LinkedList<>(Arrays.asList(args));
+        String expectedSequence = "INPUT_FILE";
+        String actualSequence = commandLineArgs.stream()
+                .map(a -> a.split("=")[0])
+                .collect(Collectors.joining("$"));
+        if(expectedSequence.equals(actualSequence)){
+            run(commandLineArgs);
         }
-        return n;
     }
+    public static void run(List<String> commandLineArgs) {
+        ApplicationConfig applicationConfig = new ApplicationConfig();
+        CommandInvoker commandInvoker = applicationConfig.getCommandInvoker();
+        BufferedReader reader;
+        String inputFile = commandLineArgs.get(0).split("=")[1];
+        commandLineArgs.remove(0);
+        try {
+            reader = new BufferedReader(new FileReader(inputFile));
+            String line = reader.readLine();
+            while (line != null) {
+                List<String> tokens = Arrays.asList(line.split(" "));
+                commandInvoker.executeCommand(tokens.get(0),tokens);
+                // read next line
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException | NoSuchCommandException e) {
+            e.printStackTrace();
+        }
 
-    public static void main(String[] args) {
-        //Scanner scanner = new Scanner(System.in);
-       // long n = scanner.nextLong();
-        //scanner.close();
-        long v = 1;
-        long po = 31;
-        long temp = v<<po;
-        System.out.println(temp);
-        System.out.println(Long.toBinaryString(temp));
-        long result = swapBits(1748556023);
-        System.out.println(result);
-    }	
-
+   }
 }
